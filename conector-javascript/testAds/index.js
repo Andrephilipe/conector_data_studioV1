@@ -1,20 +1,70 @@
-const bizSdk = require('facebook-nodejs-business-sdk');
+/**
+ * Copyright (c) 2017-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the license found in the
+ * LICENSE file in the root directory of this source tree.
+ * @flow
+ */
 
-const accessToken = 'EAAsNQRLBWDwBAJP0WwBlMKlyZAJWCx90UlKe3sqpYqaT8RwD6RvxGwhsXaQpeICvrMTNrIKvxZBzEyhY9eTF87bwF4L8JAcCjEPN5ZAR7vBkMrhoVhfsE5tbqNb8lWuc4ZBB1vbDITWG6i3ian3IVCJknhqBQOZBQduqWotZCIaVJEavZAsy4CYkTqmZAhb0mZBIZD';
-const accountId = 'act_act_1213712186069046';
-
-const FacebookAdsApi = bizSdk.FacebookAdsApi.init(accessToken);
-const AdAccount = bizSdk.AdAccount;
-const Campaign = bizSdk.Campaign;
-
-const account = new AdAccount(accountId);
-var campaigns;
-    
-account.read([AdAccount.Fields.name])
-  .then((account) =>{
-    return account.getCampaigns([Campaign.Fields.name], { limit: 10 }) // fields array and params
-  })
-  .then((result) =>{
-    campaigns = result
-    campaigns.forEach((campaign) =>console.log(campaign.name))  
-  }).catch(console.error);
+ const bizSdk = require('facebook-nodejs-business-sdk');
+ const AdAccount = bizSdk.AdAccount;
+ const AdsInsights = bizSdk.AdsInsights;
+ 
+ let access_token = 'EAAsNQRLBWDwBAAREqJ3Uv4jlfG5QdZC4pacQcd3pSqyYwzHZClRQL49aGuHJgK1KXSX8n9UhhSxb91POx3qUyeEZCPPwjijErdLS9ZBjWobbkWt2q0vQrvxA7owLrmC5FxaFh3mnXQnHlVUH4KjruUyDmiaeM4kmvA3rbbe3pqjxlj4i0j0RSWLP3NLgbMwZD';
+ let ad_account_id = 'act_1213712186069046';
+ let app_secret = '04cde27c56b0f37e3eaf39fd1a1d5963';
+ let app_id = '3110797882513468';
+ const api = bizSdk.FacebookAdsApi.init(access_token);
+ const account = new AdAccount(ad_account_id);
+ const showDebugingInfo = true; // Setting this to true shows more debugging info.
+ if (showDebugingInfo) {
+   api.setDebug(true);
+ }
+ 
+ let ads_insights;
+ let ads_insights_id;
+ 
+ const logApiCallResult = (apiCallName, data) => {
+   console.log(apiCallName);
+   if (showDebugingInfo) {
+     console.log('Data:' + JSON.stringify(data));
+   }
+ };
+ 
+ const fields = [
+   'results',
+   'result_rate',
+   'reach',
+   'frequency',
+   'impressions',
+   'delivery',
+   'spend',
+   'impressions_gross',
+   'impressions_auto_refresh',
+   'attribution_setting',
+   'quality_score_organic',
+   'quality_score_ectr',
+   'quality_score_ecvr',
+   'cost_per_result',
+   'cpp',
+   'cpm',
+ ];
+ const params = {
+   'time_range' : {'since':'2022-05-07','until':'2022-06-06'},
+   'filtering' : [],
+   'level' : 'campaign',
+   'breakdowns' : [],
+ };
+  (new AdAccount(ad_account_id)).getInsights(
+   fields,
+   params
+ )
+ .then((result) => {
+   logApiCallResult('ads_insights api call complete.', result);
+   ads_insights_id = result[0].id;
+ })
+ .catch((error) => {
+   console.log(error);
+ });
+ 
